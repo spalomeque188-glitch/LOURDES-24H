@@ -1,0 +1,13 @@
+name: Lourdes 24/7
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */5 * * *'
+jobs:
+  stream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - run: |
+          sudo apt update && sudo apt install -y ffmpeg && pip install streamlink
+          while true; do streamlink --stdout https://www.youtube.com/watch?v=3d5z9N4H7rA best -O | ffmpeg -re -i - -c:v libx264 -preset veryfast -b:v 2500k -c:a aac -b:a 128k -f flv ${{ secrets.YT_KEY }}; sleep 5; done

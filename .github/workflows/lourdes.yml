@@ -9,5 +9,12 @@ jobs:
     timeout-minutes: 350
     steps:
       - run: |
-          sudo apt update && sudo apt install -y ffmpeg && pip install streamlink
-          while true; do streamlink --stdout https://www.youtube.com/watch?v=3d5z9N4H7rA best -O | ffmpeg -re -i - -c:v libx264 -preset veryfast -b:v 2500k -c:a aac -b:a 128k -f flv ${{ secrets.YT_KEY }}; sleep 5; done
+          sudo apt update && sudo apt install -y ffmpeg
+          pip install yt-dlp
+          while true; do
+            LIVE=$(yt-dlp -g https://www.youtube.com/@LeSanctuaireNotreDamedeLourdes/live 2>/dev/null | head -n 1)
+            if [ -n "$LIVE" ]; then
+              ffmpeg -re -i "$LIVE" -c:v libx264 -preset veryfast -b:v 2500k -c:a aac -b:a 128k -f flv ${{ secrets.YT_KEY }}
+            fi
+            sleep 10
+          done
